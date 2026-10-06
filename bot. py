@@ -1,0 +1,55 @@
+import os
+import time
+import requests
+
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+
+TICKET_URL = (
+    "https://tickets.fcaugsburg.de/fcaugsburg/venue/Veranstaltungen/"
+    "b8933d08-0375-4c51-b02b-122333fa7b0b"
+)
+
+BLOCKS = ["L", "M", "N", "O"]
+
+def send_telegram(message):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    requests.post(
+        url,
+        data={
+            "chat_id": CHAT_ID,
+            "text": message,
+            "disable_web_page_preview": False,
+        },
+        timeout=20,
+    )
+
+def check_ticket_page():
+    response = requests.get(
+        TICKET_URL,
+        headers={
+            "User-Agent": "Mozilla/5.0"
+        },
+        timeout=30,
+    )
+    response.raise_for_status()
+    return response.text
+
+def main():
+    send_telegram(
+        "🟢 FCA Ticketalarm gestartet.\n"
+        "Überwachung: Blöcke L, M, N und O\n"
+        "FC Augsburg – FC Bayern München"
+    )
+
+    while True:
+        try:
+            check_ticket_page()
+            print("FCA-Ticketseite erfolgreich geprüft.")
+        except Exception as error:
+            print("Fehler:", error)
+
+        time.sleep(60)
+
+if __name__ == "__main__":
+    main()
