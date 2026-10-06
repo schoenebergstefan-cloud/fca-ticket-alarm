@@ -1,4 +1,4 @@
-name: FCA Ticketalarm 
+name: FCA Ticketalarm
 
 on:
   workflow_dispatch:
